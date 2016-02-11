@@ -15764,13 +15764,16 @@ var VirtualRenderer = function(container, theme) {
         ) + this.scrollMargin.v + (this.$extraHeight || 0);
         if (this.$horizScroll)
             desiredHeight += this.scrollBarH.getHeight();
+        /*TODO: Fix the logic */
         var vScroll = height > maxHeight;
+        var changed = false;
         
         if (desiredHeight != this.desiredHeight ||
             this.$size.height != this.desiredHeight || vScroll != this.$vScroll) {
             if (vScroll != this.$vScroll) {
-                this.$vScroll = vScroll;
-                this.scrollBarV.setVisible(vScroll);
+                // this.$vScroll = vScroll;
+                // this.scrollBarV.setVisible(vScroll);
+                changed = true;
             }
             
             var w = this.container.clientWidth;
@@ -15780,6 +15783,7 @@ var VirtualRenderer = function(container, theme) {
             
             this._signal("autosize");
         }
+        return changed;
     };
     
     this.$computeLayerConfig = function() {
@@ -15801,8 +15805,9 @@ var VirtualRenderer = function(container, theme) {
             this.scrollBarH.setVisible(horizScroll);
         }
         var vScrollBefore = this.$vScroll; // autosize can change vscroll value in which case we need to update longestLine
+        var autosize_changed = false;
         if (this.$maxLines && this.lineHeight > 1)
-            this.$autosize();
+            autosize_changed = this.$autosize();
 
         var offset = this.scrollTop % this.lineHeight;
         var minHeight = size.scrollerHeight + this.lineHeight;
@@ -15821,8 +15826,9 @@ var VirtualRenderer = function(container, theme) {
         
         var vScroll = !hideScrollbars && (this.$vScrollBarAlwaysVisible ||
             size.scrollerHeight - maxHeight + scrollPastEnd < 0 || this.scrollTop > sm.top);
+        /*TODO: Fix the logic */
         var vScrollChanged = vScrollBefore !== vScroll;
-        if (vScrollChanged) {
+        if (vScrollChanged || autosize_changed) {
             this.$vScroll = vScroll;
             this.scrollBarV.setVisible(vScroll);
         }
